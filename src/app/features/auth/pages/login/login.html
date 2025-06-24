@@ -1,0 +1,22 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+      <div class="card shadow-lg">
+        <div class="card-header text-center">
+          <h4 class="mb-0">Acessar sua Conta</h4>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-center text-body-secondary mb-4">Bem-vindo(a) de volta!</p>
+
+          <app-login-form (formSubmit)="onLogin($event)"></app-login-form>
+
+          <div class="text-center mt-3">
+            <a routerLink="/auth/register" class="link-secondary">Não tem uma conta? Crie uma agora!</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

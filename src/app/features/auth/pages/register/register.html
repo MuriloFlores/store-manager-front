@@ -1,11 +1,19 @@
-<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-  <div class="sm:mx-auto sm:w-full sm:max-w-md">
-    <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-      Crie sua conta
-    </h2>
-  </div>
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
 
-  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
-    <app-register-form (formSubmit)="onRegister($event)"></app-register-form>
+      <div class="card shadow-lg">
+        <div class="card-header text-center">
+          <h4 class="mb-0">Crie sua Conta</h4>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-center text-body-secondary mb-4">Preencha os dados abaixo para começar.</p>
+
+          <app-register-form (formSubmit)="onRegister($event)"></app-register-form>
+
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>

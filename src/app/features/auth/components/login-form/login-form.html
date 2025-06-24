@@ -1,0 +1,30 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+  <div class="mb-3">
+    <label for="login-email" class="form-label">E-mail</label>
+    <input type="email" id="login-email" class="form-control" formControlName="email"
+           [ngClass]="{ 'is-invalid': email?.invalid && email?.touched }">
+    @if (email?.invalid && email?.touched) {
+      <div class="invalid-feedback">
+        @if (email?.errors?.['required']) { <p>O e-mail é obrigatório.</p> }
+        @if (email?.errors?.['email']) { <p>Por favor, insira um e-mail válido.</p> }
+      </div>
+    }
+  </div>
+
+  <div class="mb-3">
+    <label for="login-password" class="form-label">Senha</label>
+    <input type="password" id="login-password" class="form-control" formControlName="password"
+           [ngClass]="{ 'is-invalid': password?.invalid && password?.touched }">
+    @if (password?.invalid && password?.touched) {
+      <div class="invalid-feedback">
+        @if (password?.errors?.['required']) { <p>A senha é obrigatória.</p> }
+      </div>
+    }
+  </div>
+
+  <div class="d-grid mt-4">
+    <button type="submit" class="btn btn-outline-light" [disabled]="loginForm.invalid">
+      Entrar
+    </button>
+  </div>
+</form>

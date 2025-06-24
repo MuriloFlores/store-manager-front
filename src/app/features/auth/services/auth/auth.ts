@@ -1,7 +1,8 @@
 import {Component, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {CreateUserRequest, UserResponse} from '../../../../core/models/user.model';
-import {catchError, Observable, throwError} from 'rxjs';
+import {CreateUserRequest, LoginRequest, LoginResponse, UserResponse} from '../../../../core/models/user.model';
+import {catchError, Observable, tap, throwError} from 'rxjs';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -16,6 +17,7 @@ import {catchError, Observable, throwError} from 'rxjs';
 
 export class AuthService {
   private http = inject(HttpClient)
+  private router = inject(Router);
 
   private readonly API_URL = 'https://muriloflores.xyz'
 
@@ -26,6 +28,20 @@ export class AuthService {
     return this.http.post<UserResponse>(`${this.API_URL}/create-user`, apiRequest).pipe(
       catchError(this.handleError)
     );
+  }
+
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
+      tap(response => {
+        localStorage.setItem('auth_token', response.token);
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  logout(): void {
+    localStorage.removeItem('auth_token');
+    this.router.navigate(['/auth/login']);
   }
 
   private handleError(error: HttpErrorResponse) {

@@ -1,5 +1,6 @@
 import {Routes} from '@angular/router';
 import {RegisterComponent} from './pages/register/register';
+import {LoginComponent} from './pages/login/login';
 
 export const AUTH_ROUTES: Routes = [
   {
@@ -8,8 +9,13 @@ export const AUTH_ROUTES: Routes = [
     title: 'Crie Sua Conta'
   },
   {
+    path: 'login',
+    component: LoginComponent,
+    title: 'Login',
+  },
+  {
     path: '',
-    redirectTo: 'register',
+    redirectTo: 'login',
     pathMatch: 'full'
   }
 ]
