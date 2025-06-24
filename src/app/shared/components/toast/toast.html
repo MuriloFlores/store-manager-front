@@ -1,0 +1,18 @@
+@if (notificationService.toastSignal(); as toast) {
+  <div class="fixed top-5 right-5 z-50">
+    <div
+      role="alert"
+      class="flex items-center p-4 mb-4 w-full max-w-sx text-white rounded-lg shadow"
+      [ngClass]="{
+        'bg-green-500': toast.type === 'success',
+        'bg-red-500': toast.type === 'error',
+        'bg-blue-500': toast.type === 'info'
+      }"
+    >
+      <div class="ms-3 text-sm font-medium">
+        {{ toast.message }}
+      </div>
+
+    </div>
+  </div>
+}
