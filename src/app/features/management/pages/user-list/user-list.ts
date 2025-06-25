@@ -29,13 +29,23 @@ export class UserListComponent implements OnInit {
   }
 
   loadUsers(page: number): void {
-    if (page < 1) return
-    const pageSize = 10
+    console.log(`[COMPONENT] loadUsers chamado com o argumento page:`, page);
 
-    this.userManagementService.getUsers(page, pageSize).subscribe(response => {
-      this.users = response.data;
-      this.paginationInfo = response.pagination
-    })
+    if (page < 1 || page === undefined || page === null) {
+      console.error('[COMPONENT] ERRO: Tentativa de carregar uma página inválida:', page);
+      return;
+    }
+    const pageSize = 10;
+
+    this.userManagementService.getUsers(page, pageSize).subscribe({
+      next: (response) => {
+        this.users = response.data;
+        this.paginationInfo = response.pagination;
+      },
+      error: (err) => {
+        this.notificationService.show('Falha ao carregar usuários.', 'error');
+      }
+    });
   }
 
   onRoleChange(user: UserResponse, newRole: string): void {
@@ -55,27 +65,33 @@ export class UserListComponent implements OnInit {
     });
   }
 
-  // dentro da classe UserListComponent
-
   onDeleteUser(user: UserResponse): void {
+    console.log('[COMPONENT] onDeleteUser iniciado. Estado atual:', {
+      paginationInfo: this.paginationInfo,
+      usersLength: this.users.length
+    });
+
     if (!this.paginationInfo) {
-      console.error('Lógica de exclusão interrompida: informações da paginação não estão disponíveis.');
-      this.notificationService.show('Não foi possível recarregar a lista. Por favor, atualize a página.', 'error');
+      console.error('[COMPONENT] ERRO no onDeleteUser: paginationInfo é nulo. Abortando.');
       return;
     }
 
     const currentPage = this.paginationInfo.currentPage;
     const isLastItemOnThisPage = this.users.length === 1 && currentPage > 1;
+    const pageToReload = isLastItemOnThisPage ? currentPage - 1 : currentPage;
 
-    const confirmation = confirm(`Tem certeza que deseja deletar o usuário ${user.name}? Esta ação não pode ser desfeita.`);
+
+    console.log('[COMPONENT] Valores calculados para recarregar:', { pageToReload });
+
+    const confirmation = confirm(`Tem certeza que deseja deletar o usuário ${user.name}?`);
 
     if (confirmation) {
       this.userManagementService.deleteUser(user.id).subscribe({
         next: () => {
-          this.notificationService.show(`Usuário ${user.name} deletado com sucesso.`, 'success');
+          this.notificationService.show(`Usuário ${user.name} deletado.`, 'success');
 
-          const pageToReload = isLastItemOnThisPage ? currentPage - 1 : currentPage;
 
+          console.log(`[COMPONENT] Sucesso na API de delete. Chamando loadUsers com a página:`, pageToReload);
           this.loadUsers(pageToReload);
         },
         error: (err) => {
