@@ -55,14 +55,17 @@ export class UserListComponent implements OnInit {
     });
   }
 
+  // dentro da classe UserListComponent
+
   onDeleteUser(user: UserResponse): void {
     if (!this.paginationInfo) {
-      console.error('Não é possível deletar: informações da paginação não estão disponíveis.');
+      console.error('Lógica de exclusão interrompida: informações da paginação não estão disponíveis.');
+      this.notificationService.show('Não foi possível recarregar a lista. Por favor, atualize a página.', 'error');
       return;
     }
 
     const currentPage = this.paginationInfo.currentPage;
-    const isLastItemOnPage = this.users.length === 1 && currentPage > 1;
+    const isLastItemOnThisPage = this.users.length === 1 && currentPage > 1;
 
     const confirmation = confirm(`Tem certeza que deseja deletar o usuário ${user.name}? Esta ação não pode ser desfeita.`);
 
@@ -71,7 +74,7 @@ export class UserListComponent implements OnInit {
         next: () => {
           this.notificationService.show(`Usuário ${user.name} deletado com sucesso.`, 'success');
 
-          const pageToReload = isLastItemOnPage ? currentPage - 1 : currentPage;
+          const pageToReload = isLastItemOnThisPage ? currentPage - 1 : currentPage;
 
           this.loadUsers(pageToReload);
         },
