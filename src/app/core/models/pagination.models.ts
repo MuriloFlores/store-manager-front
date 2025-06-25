@@ -1,3 +1,5 @@
+import {UserResponse} from './user.model';
+
 export interface PaginationInfo {
   currentPage: number;
   pageSize: number;
@@ -5,7 +7,7 @@ export interface PaginationInfo {
   totalPages: number;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
+export interface PaginatedResponse {
+  data: UserResponse[];
   pagination: PaginationInfo
 }
