@@ -57,9 +57,12 @@ export class UserListComponent implements OnInit {
 
   onDeleteUser(user: UserResponse): void {
     if (!this.paginationInfo) {
-      console.error('Informações da paginação não estão disponíveis para recarregar a lista.');
+      console.error('Não é possível deletar: informações da paginação não estão disponíveis.');
       return;
     }
+
+    const currentPage = this.paginationInfo.currentPage;
+    const isLastItemOnPage = this.users.length === 1 && currentPage > 1;
 
     const confirmation = confirm(`Tem certeza que deseja deletar o usuário ${user.name}? Esta ação não pode ser desfeita.`);
 
@@ -68,11 +71,7 @@ export class UserListComponent implements OnInit {
         next: () => {
           this.notificationService.show(`Usuário ${user.name} deletado com sucesso.`, 'success');
 
-          let pageToReload = this.paginationInfo!.currentPage;
-
-          if (this.users.length === 1 && pageToReload > 1) {
-            pageToReload--;
-          }
+          const pageToReload = isLastItemOnPage ? currentPage - 1 : currentPage;
 
           this.loadUsers(pageToReload);
         },
