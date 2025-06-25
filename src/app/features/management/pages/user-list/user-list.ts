@@ -56,7 +56,7 @@ export class UserListComponent implements OnInit {
         this.notificationService.show(`Cargo de ${updatedUser.name} atualizado para ${newRole}.`, 'success');
 
         if (this.paginationInfo) {
-          this.loadUsers(this.paginationInfo.currentPage);
+          this.loadUsers(this.paginationInfo.current_page);
         }
       },
       error: (err) => {
@@ -76,7 +76,7 @@ export class UserListComponent implements OnInit {
       return;
     }
 
-    const currentPage = this.paginationInfo.currentPage;
+    const currentPage = this.paginationInfo.current_page;
     const isLastItemOnThisPage = this.users.length === 1 && currentPage > 1;
     const pageToReload = isLastItemOnThisPage ? currentPage - 1 : currentPage;
 
