@@ -7,12 +7,15 @@
   </div>
 </nav>
 
-<div class="container mt-5">
-  <div class="p-5 mb-4 bg-body-tertiary rounded-3">
-    <div class="container-fluid py-5">
-      <h1 class="display-5 fw-bold">Bem-vindo(a)!</h1>
-      <p class="col-md-8 fs-4">Você está logado na área protegida da aplicação.</p>
-      <p>Este é o seu painel de controle. A partir daqui, você pode gerenciar todas as funcionalidades do sistema.</p>
-    </div>
-  </div>
+<div class="container-fluid py-5">
+  <h1 class="display-5 fw-bold">Bem-vindo(a)!</h1>
+  <p class="col-md-8 fs-4">Você está logado na área protegida da aplicação.</p>
+
+  @if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager')) {
+    <a class="btn btn-primary btn-lg mt-3" routerLink="/management/users">
+      Gerenciar Usuários
+    </a>
+  }
 </div>
+
+
