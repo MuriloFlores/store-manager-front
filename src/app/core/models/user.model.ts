@@ -2,9 +2,23 @@ export interface CreateUserRequest {
   name: string;
   email: string;
   password?: string;
+}
+
+export interface PromoteUserResponse {
   role: 'admin' | 'manager' | 'salesperson' | 'client' | 'stock_person' | 'cashier';
 }
 
+export interface DecodedToken {
+  id: string; // Mapearemos UserID para id
+  role: 'admin' | 'manager' | 'salesperson' | 'client' | 'stock_person' | 'cashier';
+  exp: number;
+}
+
+export interface AppClaims {
+  UserID: string;
+  Role: 'admin' | 'manager' | 'salesperson' | 'client' | 'stock_person' | 'cashier';
+  exp: number;
+}
 
 export interface UserResponse {
   id: string;

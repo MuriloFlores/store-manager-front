@@ -1,8 +1,16 @@
 import {Component, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {CreateUserRequest, LoginRequest, LoginResponse, UserResponse} from '../../../../core/models/user.model';
+import {
+  AppClaims,
+  CreateUserRequest,
+  DecodedToken,
+  LoginRequest,
+  LoginResponse,
+  UserResponse
+} from '../../../../core/models/user.model';
 import {catchError, Observable, tap, throwError} from 'rxjs';
 import {Router} from '@angular/router';
+import {jwtDecode} from 'jwt-decode';
 
 @Component({
   selector: 'app-auth',
@@ -42,6 +50,29 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('auth_token');
     this.router.navigate(['/auth/login']);
+  }
+
+  getCurrentUser(): DecodedToken | null {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const decoded: AppClaims = jwtDecode(token)
+
+      const user: DecodedToken = {
+        id: decoded.UserID,
+        role: decoded.Role,
+        exp: decoded.exp
+      };
+
+      return user;
+    } catch (error) {
+
+      this.logout()
+      return null;
+    }
   }
 
   private handleError(error: HttpErrorResponse) {
