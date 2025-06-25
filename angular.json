@@ -22,7 +22,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/404.html"
             ],
             "styles": [
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
