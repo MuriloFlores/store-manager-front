@@ -1,11 +1,12 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import {AuthService} from '../../features/auth/services/auth/auth';
 
 export const smartRedirectGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
-  const token = localStorage.getItem('auth_token');
+  const authService = inject(AuthService);
 
-  if (token) {
+  if (authService.isLoggedIn()) {
     console.log('Rota inválida, usuário logado. Redirecionando para /dashboard...');
     router.navigate(['/dashboard']);
   } else {

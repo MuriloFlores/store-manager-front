@@ -1,0 +1,36 @@
+@if (currentUser; as user) {
+  <nav class="navbar navbar-expand-lg bg-dark shadow-sm" data-bs-theme="dark">
+    <div class="container">
+      <a class="navbar-brand" routerLink="/dashboard">Order Manager</a>
+
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNavContent"
+              aria-controls="navbarNavContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNavContent">
+
+        <div class="navbar-nav me-auto">
+          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+
+          @if (user.role === 'admin' || user.role === 'manager') {
+            <a class="nav-link" routerLink="/management" routerLinkActive="active">Gerenciamento</a>
+          }
+        </div>
+
+        <div class="d-flex align-items-center navbar-nav mt-3 mt-lg-0 flex-sm-row justify-content-sm-end">
+          <span class="navbar-text me-lg-3 mb-2 mb-lg-0 me-sm-2">
+            Olá, {{ user.name | titlecase }}
+          </span>
+          <button class="btn btn-outline-secondary" (click)="onLogout()">
+            Sair
+          </button>
+        </div>
+
+      </div> </div>
+  </nav>
+}

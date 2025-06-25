@@ -1,21 +1,27 @@
-import {Component, inject} from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common'; // 1. Importe o CommonModule para usar @if
+import { RouterLink } from '@angular/router';
 import {AuthService} from '../../../auth/services/auth/auth';
-import {RouterLink} from '@angular/router';
+import {DecodedToken} from '../../../../core/models/user.model'; // 2. Importe o RouterLink para usar o routerLink no HTML
+
 
 @Component({
   selector: 'app-main-dashboard',
+  standalone: true,
   imports: [
+    CommonModule,
     RouterLink
   ],
   templateUrl: './main-dashboard.html',
-  styleUrl: './main-dashboard.css'
+  styleUrls: ['./main-dashboard.css']
 })
 export class MainDashboardComponent {
   private authService = inject(AuthService);
-  currentUser = this.authService.getCurrentUser();
 
+
+  public currentUser: DecodedToken | null = this.authService.getCurrentUser();
 
   onLogout(): void {
-    this.authService.logout()
+    this.authService.logout();
   }
 }

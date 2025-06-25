@@ -11,6 +11,7 @@ export interface ToastNotification {
 
 export class NotificationService {
   public toastSignal = signal<ToastNotification | null>(null)
+  private flashMessage: ToastNotification | null = null;
 
   show(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
     this.toastSignal.set({message, type})
@@ -18,5 +19,16 @@ export class NotificationService {
     setTimeout(() => {
       this.toastSignal.set(null)
     }, 3000)
+  }
+
+  showOnNextRouter(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
+    this.flashMessage = {message, type: 'info'};
+  }
+
+  displayFlashMessage(): void {
+    if (this.flashMessage) {
+      this.show(this.flashMessage.message, this.flashMessage.type);
+      this.flashMessage = null;
+    }
   }
 }

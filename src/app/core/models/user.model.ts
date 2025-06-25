@@ -9,15 +9,17 @@ export interface PromoteUserResponse {
 }
 
 export interface DecodedToken {
-  id: string; // Mapearemos UserID para id
+  id: string;
   role: 'admin' | 'manager' | 'salesperson' | 'client' | 'stock_person' | 'cashier';
   exp: number;
+  name: string;
 }
 
 export interface AppClaims {
-  UserID: string;
-  Role: 'admin' | 'manager' | 'salesperson' | 'client' | 'stock_person' | 'cashier';
+  user_id: string;
+  role: 'admin' | 'manager' | 'salesperson' | 'client' | 'stock_person' | 'cashier';
   exp: number;
+  name: string;
 }
 
 export interface UserResponse {

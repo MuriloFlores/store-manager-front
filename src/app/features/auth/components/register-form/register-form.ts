@@ -23,7 +23,7 @@ import { CreateUserRequest } from '../../../../core/models/user.model';
 })
 
 
-export class RegisterForm {
+export class RegisterForm implements OnInit {
   @Output() formSubmit = new EventEmitter<CreateUserRequest>();
 
   private fb = inject(FormBuilder);
@@ -76,5 +76,10 @@ export class RegisterForm {
     }
 
     this.formSubmit.emit(this.registerForm.value)
+  }
+
+  public resetPasswordFields(): void {
+    this.password?.reset();
+    this.confirmPassword?.reset();
   }
 }

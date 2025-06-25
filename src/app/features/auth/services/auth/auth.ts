@@ -1,5 +1,5 @@
 import {Component, inject, Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {
   AppClaims,
   CreateUserRequest,
@@ -12,13 +12,6 @@ import {catchError, Observable, tap, throwError} from 'rxjs';
 import {Router} from '@angular/router';
 import {jwtDecode} from 'jwt-decode';
 
-@Component({
-  selector: 'app-auth',
-  imports: [],
-  templateUrl: './auth.html',
-  styleUrl: './auth.css'
-})
-
 @Injectable({
   providedIn: 'root'
 })
@@ -26,51 +19,32 @@ import {jwtDecode} from 'jwt-decode';
 export class AuthService {
   private http = inject(HttpClient)
   private router = inject(Router);
-
   private readonly API_URL = 'https://muriloflores.xyz'
 
-  register(userData: CreateUserRequest): Observable<UserResponse> {
-    const {password, ...rest} = userData;
-    const apiRequest: CreateUserRequest = {password, ...rest};
-
-    return this.http.post<UserResponse>(`${this.API_URL}/create-user`, apiRequest).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
-      tap(response => {
-        localStorage.setItem('auth_token', response.token);
-      }),
-      catchError(this.handleError)
-    );
-  }
-
-  logout(): void {
-    localStorage.removeItem('auth_token');
-    this.router.navigate(['/auth/login']);
-  }
-
-  getCurrentUser(): DecodedToken | null {
+  private getDecodedUser(): DecodedToken | null {
     const token = localStorage.getItem('auth_token');
-    if (!token) {
-      return null;
-    }
+
+    if (!token) return null;
 
     try {
-      const decoded: AppClaims = jwtDecode(token)
+      const decoded: AppClaims = jwtDecode(token);
+      const isExpired = Date.now() >= decoded.exp * 1000;
 
-      const user: DecodedToken = {
-        id: decoded.UserID,
-        role: decoded.Role,
-        exp: decoded.exp
-      };
+      if (isExpired) {
+        localStorage.removeItem('auth_token');
+        return null;
+      }
 
-      return user;
+      return {
+        id: decoded.user_id,
+        role: decoded.role,
+        exp: decoded.exp,
+        name: decoded.name
+      }
     } catch (error) {
+      console.log("token invalido: ", error);
+      localStorage.removeItem('auth_token');
 
-      this.logout()
       return null;
     }
   }
@@ -84,5 +58,46 @@ export class AuthService {
     }
 
     return throwError(() => new Error(userMessage));
+  }
+
+  public register(userData: CreateUserRequest): Observable<UserResponse> {
+    const {password, ...rest} = userData;
+    const apiRequest: CreateUserRequest = {password, ...rest};
+
+    return this.http.post<UserResponse>(`${this.API_URL}/create-user`, apiRequest).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  public login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
+      tap(response => {
+        localStorage.setItem('auth_token', response.token);
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  public logout(): void {
+    localStorage.removeItem('auth_token');
+    this.router.navigate(['/auth/login']);
+  }
+
+  public getCurrentUser(): DecodedToken | null {
+    return this.getDecodedUser();
+  }
+
+  public isLoggedIn(): boolean {
+    return !!this.getDecodedUser()
+  }
+
+  public getToken(): string | null {
+    return localStorage.getItem('auth_token');
+  }
+
+  public confirmAccount(token: string): Observable<{ message: string }> {
+    const params = new HttpParams().set('token', token)
+
+    return this.http.get<{message: string}>(`${this.API_URL}/verify-account`, { params })
   }
 }

@@ -55,6 +55,27 @@ export class UserListComponent implements OnInit {
     });
   }
 
+  onDeleteUser(user: UserResponse): void {
+    const confirmation = confirm(`Tem certeza que deseja deletar o usuário ${user.name}? Esta ação não pode ser desfeita.`);
+
+    if (confirmation && this.paginationInfo) {
+      this.userManagementService.deleteUser(user.id).subscribe({
+        next: () => {
+          this.notificationService.show(`Usuário ${user.name} deletado com sucesso.`, 'success');
+
+          if (this.users.length === 1 && this.paginationInfo!.currentPage > 1) {
+            this.loadUsers(this.paginationInfo!.currentPage - 1);
+          } else {
+            this.loadUsers(this.paginationInfo!.currentPage);
+          }
+        },
+        error: (err) => {
+          this.notificationService.show('Erro ao deletar usuário.', 'error');
+        }
+      });
+    }
+  }
+
   isEditingDisabled(user: UserResponse): boolean {
     if (!this.currentUser) return true;
 

@@ -13,10 +13,15 @@ export const adminManagerGuard: CanActivateFn = (route, state) => {
 
   if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager')) {
     return true;
-  } else {
-    notificationService.show('Você não tem permissão para acessar esta página.', 'error');
-
-    router.navigate(['/dashboard']);
-    return false;
   }
+
+  notificationService.show('Você não tem permissão para acessar esta página.', 'error')
+
+  if (authService.isLoggedIn()) {
+    router.navigate(['/dashboard'])
+  } else {
+    router.navigate(['/auth/login'])
+  }
+
+  return false;
 };

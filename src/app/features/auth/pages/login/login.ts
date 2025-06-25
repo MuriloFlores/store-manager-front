@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {AuthService} from '../../services/auth/auth';
 import {Router, RouterLink} from '@angular/router';
 import {NotificationService} from '../../../../shared/services/notification';
@@ -14,10 +14,14 @@ import {LoginFormComponent} from '../../components/login-form/login-form';
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private authService = inject(AuthService)
   private router = inject(Router)
   private notificationService = inject(NotificationService)
+
+  ngOnInit() {
+    this.notificationService.displayFlashMessage()
+  }
 
   onLogin(credentials: LoginRequest): void {
     this.authService.login(credentials).subscribe({

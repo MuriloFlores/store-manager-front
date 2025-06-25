@@ -1,21 +1,10 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
-  <div class="container">
-    <a class="navbar-brand" href="#">Meu Dashboard</a>
-    <button class="btn btn-outline-secondary" (click)="onLogout()">
-      Sair (Logout)
-    </button>
+<div class="container mt-5">
+  <div class="p-5 mb-4 bg-body-tertiary rounded-3 shadow-sm">
+    <div class="container-fluid py-5">
+      <h1 class="display-5 fw-bold">Bem-vindo(a) ao seu Dashboard!</h1>
+      <p class="col-md-8 fs-4">Esta é a sua área principal da aplicação.</p>
+      <hr class="my-4">
+      <p>Bem-vindo ao Order Manager</p>
+    </div>
   </div>
-</nav>
-
-<div class="container-fluid py-5">
-  <h1 class="display-5 fw-bold">Bem-vindo(a)!</h1>
-  <p class="col-md-8 fs-4">Você está logado na área protegida da aplicação.</p>
-
-  @if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager')) {
-    <a class="btn btn-primary btn-lg mt-3" routerLink="/management/users">
-      Gerenciar Usuários
-    </a>
-  }
 </div>
-
-

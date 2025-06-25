@@ -19,6 +19,10 @@ export class UserManagementService {
     return this.http.get<PaginatedResponse<UserResponse>>(`${this.API_URL}/users`, { params })
   }
 
+  deleteUser(userID: string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/user/${userID}`)
+  }
+
   updateUserRole(userID: string, newRole: string): Observable<UserResponse> {
     const payload = {role: newRole}
 
