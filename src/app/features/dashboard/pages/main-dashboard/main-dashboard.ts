@@ -10,7 +10,6 @@ import {DecodedToken} from '../../../../core/models/user.model'; // 2. Importe o
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink
   ],
   templateUrl: './main-dashboard.html',
   styleUrls: ['./main-dashboard.css']
