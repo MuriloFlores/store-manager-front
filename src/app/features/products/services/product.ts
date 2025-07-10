@@ -54,5 +54,9 @@ export class ProductService {
   deleteProduct(id: string): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/item/${id}`);
   }
+
+  reactivateProduct(id: string): Observable<InternalItemResponse> {
+    return this.http.post<InternalItemResponse>(`${this.API_URL}/items/${id}/reactivate`, {})
+  }
 }
 

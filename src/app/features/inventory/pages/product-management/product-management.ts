@@ -1,22 +1,24 @@
-import { Component, inject, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-import { CommonModule, TitleCasePipe, CurrencyPipe } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Modal } from 'bootstrap';
+import {Component, inject, OnInit, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
+import {CommonModule, TitleCasePipe, CurrencyPipe} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Modal} from 'bootstrap';
 import {ProductService} from '../../../products/services/product';
 import {AuthService} from '../../../auth/services/auth/auth';
 import {NotificationService} from '../../../../shared/services/notification';
 import {CreateItemRequest, InternalItemResponse, UpdateItemRequest} from '../../../../core/models/item.model';
 import {DecodedToken} from '../../../../core/models/user.model';
 import {PaginationInfo} from '../../../../core/models/pagination.models';
+import {HttpErrorResponse} from '@angular/common/http';
 
 
 @Component({
   selector: 'app-product-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe],
+  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, TitleCasePipe],
   templateUrl: './product-management.html',
   styleUrls: ['./product-management.css']
 })
+
 export class ProductManagementComponent implements OnInit, AfterViewInit {
   private productService = inject(ProductService);
   private authService = inject(AuthService);
@@ -35,6 +37,10 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
   private productModal: Modal | null = null;
   @ViewChild('productModalElement') productModalElement!: ElementRef;
 
+  private conflictModal: Modal | null = null;
+  @ViewChild('conflictModalElement') conflictModalElement!: ElementRef;
+  public conflictData: { id: string; name: string; } | null = null;
+
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.buildForm();
@@ -44,6 +50,9 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     if (this.productModalElement) {
       this.productModal = new Modal(this.productModalElement.nativeElement);
+    }
+    if (this.conflictModalElement) {
+      this.conflictModal = new Modal(this.conflictModalElement.nativeElement);
     }
   }
 
@@ -115,24 +124,21 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
     this.isSubmitting = true;
 
     if (this.editingProductId) {
-
       const updatePayload: UpdateItemRequest = this.productForm.value;
-      this.productService.updateProduct(this.editingProductId, updatePayload).subscribe(this.getObserver());
+      this.productService.updateProduct(this.editingProductId, updatePayload).subscribe(this.getSubmitObserver());
     } else {
-
       const createPayload: CreateItemRequest = this.productForm.value;
-      this.productService.createProduct(createPayload).subscribe(this.getObserver());
+      this.productService.createProduct(createPayload).subscribe(this.getSubmitObserver());
     }
   }
 
   onDeleteProduct(product: InternalItemResponse): void {
-    const confirmation = confirm(`Tem certeza que deseja deletar o produto "${product.name}"?`);
-    if (!confirmation) return;
-
     if (!this.paginationInfo) {
       this.notificationService.show('Erro: Informações da página não encontradas.', 'error');
       return;
     }
+    const confirmation = confirm(`Tem certeza que deseja deletar o produto "${product.name}"?`);
+    if (!confirmation) return;
 
     const currentPage = this.paginationInfo.current_page;
     const isLastItemOnThisPage = this.products.length === 1 && currentPage > 1;
@@ -147,7 +153,21 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private getObserver() {
+  onConfirmReactivateAndEdit(): void {
+    if (!this.conflictData) return;
+    const idToReactivate = this.conflictData.id;
+    this.conflictModal?.hide();
+
+    this.productService.reactivateProduct(idToReactivate).subscribe({
+      next: (reactivatedProduct) => {
+        this.notificationService.show('Produto reativado! Agora você pode editá-lo.', 'success');
+        this.openEditModal(reactivatedProduct);
+      },
+      error: () => this.notificationService.show('Não foi possível reativar o produto.', 'error')
+    });
+  }
+
+  private getSubmitObserver() {
     return {
       next: () => {
         const message = this.editingProductId ? 'Produto atualizado!' : 'Produto criado!';
@@ -156,10 +176,45 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
         this.productModal?.hide();
         this.loadProducts(this.paginationInfo?.current_page || 1);
       },
-      error: (err: any) => {
-        this.notificationService.show('Erro ao salvar produto.', 'error');
+      error: (err: HttpErrorResponse) => {
         this.isSubmitting = false;
+        const cause = err.error?.causes?.[0];
+
+        if (err.status === 409 && cause?.field === 'SKU') {
+          this.conflictData = {
+            id: cause.context.existing_item_id,
+            name: cause.context.existing_name
+          };
+          this.productModal?.hide();
+          this.conflictModal?.show();
+        } else {
+          this.notificationService.show(err.error?.Message || 'Erro ao salvar produto.', 'error');
+        }
       }
     };
   }
+
+  get displayedPages(): number[] {
+    if (!this.paginationInfo) {
+      return [];
+    }
+
+    const {current_page, total_pages} = this.paginationInfo;
+    const pagesToShow = 5;
+    const pages: number[] = [];
+
+    let startPage = Math.max(1, current_page - Math.floor(pagesToShow / 2));
+    let endPage = Math.min(total_pages, startPage + pagesToShow - 1);
+
+    if (endPage - startPage + 1 < pagesToShow) {
+      startPage = Math.max(1, endPage - pagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
 }
