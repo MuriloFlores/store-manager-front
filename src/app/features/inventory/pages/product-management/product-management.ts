@@ -79,6 +79,8 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
         this.products = response.data;
         this.paginationInfo = response.pagination;
         this.isLoading = false;
+
+        console.log(this.products)
       },
       error: (err) => {
         this.notificationService.show('Falha ao carregar produtos. Você pode não ter permissão.', 'error');
@@ -111,7 +113,7 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
       minimum_stock_level: product.minimum_stock_level,
       item_type: product.item_type,
       can_be_sold: product.can_be_sold,
-      active: product.is_active
+      active: product.active
     });
     this.productModal?.show();
   }

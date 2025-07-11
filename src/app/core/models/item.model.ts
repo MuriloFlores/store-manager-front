@@ -9,7 +9,7 @@ export interface ClientItemResponse {
 
 export interface InternalItemResponse extends ClientItemResponse {
   item_type: string;
-  is_active: boolean;
+  active: boolean;
   can_be_sold: boolean;
   price_cost: number;
   stock_quantity: number;

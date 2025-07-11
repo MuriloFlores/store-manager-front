@@ -37,7 +37,7 @@
                   <td class="align-middle">{{ (product.price_sale / 100) | currency:'BRL' }}</td>
                   <td class="align-middle">{{ product.stock_quantity }} {{ product.unit_of_measure }}</td>
                   <td class="align-middle text-center">
-                    @if (product.is_active) {
+                    @if (product.active) {
                       <span class="badge rounded-pill text-bg-success">Ativo</span>
                     } @else {
                       <span class="badge rounded-pill text-bg-secondary">Inativo</span>
