@@ -14,7 +14,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 @Component({
   selector: 'app-product-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, TitleCasePipe],
+  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe],
   templateUrl: './product-management.html',
   styleUrls: ['./product-management.css']
 })

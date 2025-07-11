@@ -48,6 +48,8 @@ export class ProductService {
   }
 
   updateProduct(id: string, payload: UpdateItemRequest): Observable<InternalItemResponse> {
+    console.log(payload)
+
     return this.http.patch<InternalItemResponse>(`${this.API_URL}/item/${id}`, payload);
   }
 

@@ -34,7 +34,7 @@ export interface CreateItemRequest {
 export interface UpdateItemRequest {
   name?: string
   description?: string
-  is_active?: boolean
+  active?: boolean
   can_be_sold?: boolean
   price_sale_in_cents?: boolean
   minimum_stock_level?: number
