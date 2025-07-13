@@ -75,10 +75,12 @@
             <li class="page-item" [class.disabled]="pInfo.current_page === 1">
               <a class="page-link" href="javascript:void(0)" (click)="loadProducts(pInfo.current_page - 1)">&laquo;</a>
             </li>
-            @for (page of displayedPages; track page) {
-              <li class="page-item" [class.active]="page === pInfo.current_page">
-                <a class="page-link" href="javascript:void(0)" (click)="loadProducts(page)">{{ page }}</a>
-              </li>
+            @for (_ of [].constructor(pInfo.total_pages); track i; let i = $index) {
+              @if ( i+1 === pInfo.current_page || (i+1 >= pInfo.current_page - 2 && i+1 <= pInfo.current_page + 2) ) {
+                <li class="page-item" [class.active]="i + 1 === pInfo.current_page">
+                  <a class="page-link" href="javascript:void(0)" (click)="loadProducts(i + 1)">{{ i + 1 }}</a>
+                </li>
+              }
             }
             <li class="page-item" [class.disabled]="pInfo.current_page === pInfo.total_pages">
               <a class="page-link" href="javascript:void(0)" (click)="loadProducts(pInfo.current_page + 1)">&raquo;</a>
@@ -102,7 +104,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-
           <div class="row">
             <div class="col-md-8 mb-3">
               <label for="name" class="form-label">Nome do Produto</label>
@@ -113,38 +114,38 @@
               <input type="text" class="form-control" id="sku" formControlName="SKU">
             </div>
           </div>
-
           <div class="mb-3">
             <label for="description" class="form-label">Descrição</label>
             <textarea class="form-control" id="description" formControlName="description" rows="2"></textarea>
           </div>
-
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="price_in_cents" class="form-label">Preço de Venda (em centavos)</label>
-              <input type="number" class="form-control" id="price_in_cents" formControlName="price_in_cents">
+              <label for="price_in_cents" class="form-label">Preço de Venda</label>
+              <input type="text" class="form-control" id="price_in_cents" formControlName="price_in_cents"
+                     mask="currency" prefix="R$ " thousands="." decimal=","/>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="price_cost_in_cents" class="form-label">Preço de Custo (em centavos)</label>
-              <input type="number" class="form-control" id="price_cost_in_cents" formControlName="price_cost_in_cents">
+              <label for="price_cost_in_cents" class="form-label">Preço de Custo</label>
+              <input type="text" class="form-control" id="price_cost_in_cents" formControlName="price_cost_in_cents"
+                     mask="currency" prefix="R$ " thousands="." decimal=","/>
             </div>
           </div>
-
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="stock_quantity" class="form-label">Qtd. em Estoque</label>
-              <input type="number" class="form-control" id="stock_quantity" formControlName="stock_quantity">
+              <input type="text" class="form-control" id="stock_quantity" formControlName="stock_quantity"
+                     mask="separator.2" thousandSeparator="." decimalMarker=","/>
             </div>
             <div class="col-md-4 mb-3">
               <label for="minimum_stock_level" class="form-label">Nível Mínimo de Estoque</label>
-              <input type="number" class="form-control" id="minimum_stock_level" formControlName="minimum_stock_level">
+              <input type="text" class="form-control" id="minimum_stock_level" formControlName="minimum_stock_level"
+                     mask="0*"/>
             </div>
             <div class="col-md-4 mb-3">
               <label for="unit_of_measure" class="form-label">Unidade de Medida</label>
               <input type="text" class="form-control" id="unit_of_measure" formControlName="unit_of_measure">
             </div>
           </div>
-
           <div class="row align-items-center">
             <div class="col-md-4 mb-3">
               <label for="item_type" class="form-label">Tipo de Item</label>
@@ -166,7 +167,6 @@
               </div>
             </div>
           </div>
-
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" [disabled]="isSubmitting">Cancelar</button>

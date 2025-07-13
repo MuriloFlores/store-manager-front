@@ -1,20 +1,21 @@
-import {Component, inject, OnInit, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
-import {CommonModule, TitleCasePipe, CurrencyPipe} from '@angular/common';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Modal} from 'bootstrap';
+import { Component, inject, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { CommonModule, TitleCasePipe, CurrencyPipe } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Modal } from 'bootstrap';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { PaginationInfo } from '../../../../core/models/pagination.models';
 import {ProductService} from '../../../products/services/product';
-import {AuthService} from '../../../auth/services/auth/auth';
-import {NotificationService} from '../../../../shared/services/notification';
-import {CreateItemRequest, InternalItemResponse, UpdateItemRequest} from '../../../../core/models/item.model';
+import { AuthService } from '../../../auth/services/auth/auth';
+import { NotificationService } from '../../../../shared/services/notification';
+import { InternalItemResponse } from '../../../../core/models/item.model';
 import {DecodedToken} from '../../../../core/models/user.model';
-import {PaginationInfo} from '../../../../core/models/pagination.models';
-import {HttpErrorResponse} from '@angular/common/http';
-
 
 @Component({
   selector: 'app-product-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe],
+  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, TitleCasePipe, NgxMaskDirective],
+  providers: [provideNgxMask()],
   templateUrl: './product-management.html',
   styleUrls: ['./product-management.css']
 })
@@ -48,12 +49,8 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.productModalElement) {
-      this.productModal = new Modal(this.productModalElement.nativeElement);
-    }
-    if (this.conflictModalElement) {
-      this.conflictModal = new Modal(this.conflictModalElement.nativeElement);
-    }
+    if (this.productModalElement) this.productModal = new Modal(this.productModalElement.nativeElement);
+    if (this.conflictModalElement) this.conflictModal = new Modal(this.conflictModalElement.nativeElement);
   }
 
   buildForm(): void {
@@ -62,8 +59,8 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
       SKU: ['', Validators.required],
       description: [''],
       unit_of_measure: ['unidade', Validators.required],
-      price_in_cents: [0, [Validators.required, Validators.min(0)]],
-      price_cost_in_cents: [0, [Validators.required, Validators.min(0)]],
+      price_in_cents: [null, [Validators.required, Validators.min(0)]],
+      price_cost_in_cents: [null, [Validators.required, Validators.min(0)]],
       stock_quantity: [0, [Validators.required, Validators.min(0)]],
       minimum_stock_level: [0, [Validators.required, Validators.min(0)]],
       item_type: ['MATERIAL', Validators.required],
@@ -81,7 +78,8 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.notificationService.show('Falha ao carregar produtos. Você pode não ter permissão.', 'error');
+        this.notificationService.show('Falha ao carregar produtos.', 'error');
+        console.log(err)
         this.isLoading = false;
       }
     });
@@ -90,10 +88,7 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
   openCreateModal(): void {
     this.editingProductId = null;
     this.productForm.reset({
-      can_be_sold: true,
-      active: true,
-      item_type: 'MATERIAL',
-      unit_of_measure: 'unidade'
+      can_be_sold: true, active: true, item_type: 'MATERIAL', unit_of_measure: 'unidade'
     });
     this.productModal?.show();
   }
@@ -105,8 +100,8 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
       SKU: product.sku,
       description: product.description,
       unit_of_measure: product.unit_of_measure,
-      price_in_cents: product.price_sale,
-      price_cost_in_cents: product.price_cost,
+      price_in_cents: (product.price_sale / 100).toFixed(2).replace('.', ','),
+      price_cost_in_cents: (product.price_cost / 100).toFixed(2).replace('.', ','),
       stock_quantity: product.stock_quantity,
       minimum_stock_level: product.minimum_stock_level,
       item_type: product.item_type,
@@ -123,20 +118,25 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
     }
     this.isSubmitting = true;
 
+    // CORREÇÃO: Converte os valores mascarados de volta para números antes de enviar
+    const formValue = this.productForm.getRawValue();
+    const payload = {
+      ...formValue,
+      price_in_cents: this.unmaskCurrency(formValue.price_in_cents),
+      price_cost_in_cents: this.unmaskCurrency(formValue.price_cost_in_cents),
+      stock_quantity: Number(formValue.stock_quantity),
+      minimum_stock_level: Number(formValue.minimum_stock_level)
+    };
+
     if (this.editingProductId) {
-      const updatePayload: UpdateItemRequest = this.productForm.value;
-      this.productService.updateProduct(this.editingProductId, updatePayload).subscribe(this.getSubmitObserver());
+      this.productService.updateProduct(this.editingProductId, payload).subscribe(this.getSubmitObserver());
     } else {
-      const createPayload: CreateItemRequest = this.productForm.value;
-      this.productService.createProduct(createPayload).subscribe(this.getSubmitObserver());
+      this.productService.createProduct(payload).subscribe(this.getSubmitObserver());
     }
   }
 
   onDeleteProduct(product: InternalItemResponse): void {
-    if (!this.paginationInfo) {
-      this.notificationService.show('Erro: Informações da página não encontradas.', 'error');
-      return;
-    }
+    if (!this.paginationInfo) { return; }
     const confirmation = confirm(`Tem certeza que deseja deletar o produto "${product.name}"?`);
     if (!confirmation) return;
 
@@ -167,6 +167,13 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // Método auxiliar para converter a string formatada em centavos (número)
+  private unmaskCurrency(maskedValue: string | null | undefined): number {
+    if (!maskedValue) return 0;
+    const numericString = maskedValue.replace(/[^0-9,]/g, '').replace(',', '.');
+    return Math.round(parseFloat(numericString) * 100);
+  }
+
   private getSubmitObserver() {
     return {
       next: () => {
@@ -179,12 +186,8 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
       error: (err: HttpErrorResponse) => {
         this.isSubmitting = false;
         const cause = err.error?.causes?.[0];
-
         if (err.status === 409 && cause?.field === 'SKU') {
-          this.conflictData = {
-            id: cause.context.existing_item_id,
-            name: cause.context.existing_name
-          };
+          this.conflictData = { id: cause.context.existing_item_id, name: cause.context.existing_name };
           this.productModal?.hide();
           this.conflictModal?.show();
         } else {
@@ -195,26 +198,18 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
   }
 
   get displayedPages(): number[] {
-    if (!this.paginationInfo) {
-      return [];
-    }
-
-    const {current_page, total_pages} = this.paginationInfo;
+    if (!this.paginationInfo) return [];
+    const { current_page, total_pages } = this.paginationInfo;
     const pagesToShow = 5;
     const pages: number[] = [];
-
     let startPage = Math.max(1, current_page - Math.floor(pagesToShow / 2));
     let endPage = Math.min(total_pages, startPage + pagesToShow - 1);
-
     if (endPage - startPage + 1 < pagesToShow) {
       startPage = Math.max(1, endPage - pagesToShow + 1);
     }
-
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-
     return pages;
   }
-
 }
