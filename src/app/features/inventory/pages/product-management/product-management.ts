@@ -14,7 +14,7 @@ import {DecodedToken} from '../../../../core/models/user.model';
 @Component({
   selector: 'app-product-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, TitleCasePipe, NgxMaskDirective],
+  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, NgxMaskDirective],
   providers: [provideNgxMask()],
   templateUrl: './product-management.html',
   styleUrls: ['./product-management.css']
@@ -33,6 +33,7 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
 
   public productForm!: FormGroup;
   public editingProductId: string | null = null;
+  public expandedProductId: string | null = null;
   public isSubmitting = false;
 
   private productModal: Modal | null = null;
@@ -118,7 +119,6 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
     }
     this.isSubmitting = true;
 
-    // CORREÇÃO: Converte os valores mascarados de volta para números antes de enviar
     const formValue = this.productForm.getRawValue();
     const payload = {
       ...formValue,
@@ -167,7 +167,6 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Método auxiliar para converter a string formatada em centavos (número)
   private unmaskCurrency(maskedValue: string | null | undefined): number {
     if (!maskedValue) return 0;
     const numericString = maskedValue.replace(/[^0-9,]/g, '').replace(',', '.');
@@ -195,6 +194,14 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
         }
       }
     };
+  }
+
+  toggleDetails(productId: string): void {
+    if (this.expandedProductId === productId) {
+      this.expandedProductId = null
+    } else {
+      this.expandedProductId = productId
+    }
   }
 
   get displayedPages(): number[] {

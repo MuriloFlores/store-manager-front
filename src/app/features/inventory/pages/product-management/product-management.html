@@ -21,7 +21,7 @@
           <table class="table table-hover table-striped mb-0">
             <thead class="table-dark sticky-top">
             <tr>
-              <th scope="col">Nome</th>
+              <th scope="col" style="width: 5%;"></th> <th scope="col">Nome</th>
               <th scope="col">SKU</th>
               <th scope="col">Preço Venda</th>
               <th scope="col">Estoque</th>
@@ -31,7 +31,16 @@
             </thead>
             <tbody>
               @for (product of products; track product.id) {
-                <tr>
+                <tr class="product-row">
+                  <td>
+                    <button class="btn btn-sm btn-link text-body-secondary" (click)="toggleDetails(product.id)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down expand-icon"
+                           [class.expanded]="expandedProductId === product.id"
+                           viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                      </svg>
+                    </button>
+                  </td>
                   <td class="align-middle fw-medium">{{ product.name }}</td>
                   <td class="align-middle font-monospace text-muted">{{ product.sku }}</td>
                   <td class="align-middle">{{ (product.price_sale / 100) | currency:'BRL' }}</td>
@@ -44,19 +53,42 @@
                     }
                   </td>
                   <td class="align-middle text-center">
-                    <button class="btn btn-sm btn-outline-secondary me-2" (click)="openEditModal(product)" title="Editar {{ product.name }}">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178Z"/></svg>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" title="Deletar {{ product.name }}" (click)="onDeleteProduct(product)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/></svg>
-                    </button>
                   </td>
+                </tr>
+
+                <tr class="details-row">
+                  @if (expandedProductId === product.id) {
+                    <td [attr.colspan]="7">
+                      <div class="details-container p-3">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <strong>Descrição:</strong>
+                            <p class="text-muted">{{ product.description || 'Nenhuma descrição fornecida.' }}</p>
+                          </div>
+                          <div class="col-md-6">
+                            <dl class="row">
+                              <dt class="col-sm-6">Preço de Custo:</dt>
+                              <dd class="col-sm-6">{{ (product.price_cost / 100) | currency:'BRL' }}</dd>
+
+                              <dt class="col-sm-6">Nível Mínimo de Estoque:</dt>
+                              <dd class="col-sm-6">{{ product.minimum_stock_level }}</dd>
+
+                              <dt class="col-sm-6">Tipo de Item:</dt>
+                              <dd class="col-sm-6">{{ product.item_type | titlecase }}</dd>
+
+                              <dt class="col-sm-6">Pode ser Vendido?</dt>
+                              <dd class="col-sm-6">{{ product.can_be_sold ? 'Sim' : 'Não' }}</dd>
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  }
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="6" class="text-center p-5">
+                  <td colspan="7" class="text-center p-5">
                     <h5 class="mb-3">Nenhum produto encontrado</h5>
-                    <p class="text-muted">Clique em "Novo Produto" para cadastrar o primeiro item.</p>
                   </td>
                 </tr>
               }
