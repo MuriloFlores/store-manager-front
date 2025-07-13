@@ -5,21 +5,28 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Modal } from 'bootstrap';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { PaginationInfo } from '../../../../core/models/pagination.models';
-import {ProductService} from '../../../products/services/product';
-import { AuthService } from '../../../auth/services/auth/auth';
-import { NotificationService } from '../../../../shared/services/notification';
-import { InternalItemResponse } from '../../../../core/models/item.model';
+import {InternalItemResponse} from '../../../../core/models/item.model';
 import {DecodedToken} from '../../../../core/models/user.model';
+import {NotificationService} from '../../../../shared/services/notification';
+import {ProductService} from '../../../products/services/product';
+import {AuthService} from '../../../auth/services/auth/auth';
 
 @Component({
   selector: 'app-product-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, NgxMaskDirective],
-  providers: [provideNgxMask()],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    CurrencyPipe,
+    TitleCasePipe,
+    NgxMaskDirective
+  ],
+  providers: [
+    provideNgxMask()
+  ],
   templateUrl: './product-management.html',
   styleUrls: ['./product-management.css']
 })
-
 export class ProductManagementComponent implements OnInit, AfterViewInit {
   private productService = inject(ProductService);
   private authService = inject(AuthService);
@@ -30,18 +37,16 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
   public paginationInfo: PaginationInfo | null = null;
   public currentUser: DecodedToken | null = null;
   public isLoading = true;
-
   public productForm!: FormGroup;
   public editingProductId: string | null = null;
-  public expandedProductId: string | null = null;
   public isSubmitting = false;
+  public expandedProductId: string | null = null;
+  public conflictData: { id: string; name: string; } | null = null;
 
   private productModal: Modal | null = null;
   @ViewChild('productModalElement') productModalElement!: ElementRef;
-
   private conflictModal: Modal | null = null;
   @ViewChild('conflictModalElement') conflictModalElement!: ElementRef;
-  public conflictData: { id: string; name: string; } | null = null;
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -50,8 +55,12 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.productModalElement) this.productModal = new Modal(this.productModalElement.nativeElement);
-    if (this.conflictModalElement) this.conflictModal = new Modal(this.conflictModalElement.nativeElement);
+    if (this.productModalElement) {
+      this.productModal = new Modal(this.productModalElement.nativeElement);
+    }
+    if (this.conflictModalElement) {
+      this.conflictModal = new Modal(this.conflictModalElement.nativeElement);
+    }
   }
 
   buildForm(): void {
@@ -60,10 +69,10 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
       SKU: ['', Validators.required],
       description: [''],
       unit_of_measure: ['unidade', Validators.required],
-      price_in_cents: [null, [Validators.required, Validators.min(0)]],
-      price_cost_in_cents: [null, [Validators.required, Validators.min(0)]],
-      stock_quantity: [0, [Validators.required, Validators.min(0)]],
-      minimum_stock_level: [0, [Validators.required, Validators.min(0)]],
+      price_in_cents: [null, [Validators.required]],
+      price_cost_in_cents: [null, [Validators.required]],
+      stock_quantity: [0, [Validators.required]],
+      minimum_stock_level: [0, [Validators.required]],
       item_type: ['MATERIAL', Validators.required],
       can_be_sold: [true, Validators.required],
       active: [true, Validators.required],
@@ -79,8 +88,7 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.notificationService.show('Falha ao carregar produtos.', 'error');
-        console.log(err)
+        this.notificationService.show('Falha ao carregar produtos. Você pode não ter permissão.', 'error');
         this.isLoading = false;
       }
     });
@@ -101,8 +109,8 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
       SKU: product.sku,
       description: product.description,
       unit_of_measure: product.unit_of_measure,
-      price_in_cents: (product.price_sale / 100).toFixed(2).replace('.', ','),
-      price_cost_in_cents: (product.price_cost / 100).toFixed(2).replace('.', ','),
+      price_in_cents: product.price_sale / 100,
+      price_cost_in_cents: product.price_cost / 100,
       stock_quantity: product.stock_quantity,
       minimum_stock_level: product.minimum_stock_level,
       item_type: product.item_type,
@@ -120,11 +128,12 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
     this.isSubmitting = true;
 
     const formValue = this.productForm.getRawValue();
+
     const payload = {
       ...formValue,
       price_in_cents: this.unmaskCurrency(formValue.price_in_cents),
       price_cost_in_cents: this.unmaskCurrency(formValue.price_cost_in_cents),
-      stock_quantity: Number(formValue.stock_quantity),
+      stock_quantity: Number(String(formValue.stock_quantity).replace(',', '.')),
       minimum_stock_level: Number(formValue.minimum_stock_level)
     };
 
@@ -167,9 +176,12 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private unmaskCurrency(maskedValue: string | null | undefined): number {
-    if (!maskedValue) return 0;
-    const numericString = maskedValue.replace(/[^0-9,]/g, '').replace(',', '.');
+  private unmaskCurrency(maskedValue: string | number | null | undefined): number {
+    if (maskedValue === null || maskedValue === undefined) return 0;
+
+    const valueAsString = String(maskedValue);
+    const numericString = valueAsString.replace(/[^0-9,]/g, '').replace(',', '.');
+
     return Math.round(parseFloat(numericString) * 100);
   }
 
@@ -198,9 +210,9 @@ export class ProductManagementComponent implements OnInit, AfterViewInit {
 
   toggleDetails(productId: string): void {
     if (this.expandedProductId === productId) {
-      this.expandedProductId = null
+      this.expandedProductId = null;
     } else {
-      this.expandedProductId = productId
+      this.expandedProductId = productId;
     }
   }
 

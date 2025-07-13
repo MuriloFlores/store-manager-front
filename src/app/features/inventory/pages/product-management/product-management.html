@@ -2,7 +2,11 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0">Gerenciamento de Inventário</h2>
     <button class="btn btn-primary" (click)="openCreateModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg me-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg me-1"
+           viewBox="0 0 16 16">
+        <path fill-rule="evenodd"
+              d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+      </svg>
       Novo Produto
     </button>
   </div>
@@ -21,10 +25,10 @@
           <table class="table table-hover table-striped mb-0">
             <thead class="table-dark sticky-top">
             <tr>
-              <th scope="col" style="width: 5%;"></th> <th scope="col">Nome</th>
+              <th scope="col" style="width: 5%;"></th>
+              <th scope="col">Produto</th>
               <th scope="col">SKU</th>
-              <th scope="col">Preço Venda</th>
-              <th scope="col">Estoque</th>
+              <th scope="col">Estoque Atual</th>
               <th scope="col" class="text-center">Status</th>
               <th scope="col" class="text-center">Ações</th>
             </tr>
@@ -33,17 +37,18 @@
               @for (product of products; track product.id) {
                 <tr class="product-row">
                   <td>
-                    <button class="btn btn-sm btn-link text-body-secondary" (click)="toggleDetails(product.id)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down expand-icon"
-                           [class.expanded]="expandedProductId === product.id"
+                    <button class="btn btn-sm btn-link text-body-secondary" (click)="toggleDetails(product.id)"
+                            [attr.aria-expanded]="expandedProductId === product.id" title="Ver detalhes">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                           class="bi bi-chevron-down expand-icon" [class.expanded]="expandedProductId === product.id"
                            viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                        <path fill-rule="evenodd"
+                              d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
                       </svg>
                     </button>
                   </td>
                   <td class="align-middle fw-medium">{{ product.name }}</td>
                   <td class="align-middle font-monospace text-muted">{{ product.sku }}</td>
-                  <td class="align-middle">{{ (product.price_sale / 100) | currency:'BRL' }}</td>
                   <td class="align-middle">{{ product.stock_quantity }} {{ product.unit_of_measure }}</td>
                   <td class="align-middle text-center">
                     @if (product.active) {
@@ -53,32 +58,68 @@
                     }
                   </td>
                   <td class="align-middle text-center">
+                    <button class="btn btn-sm btn-outline-secondary me-2" (click)="openEditModal(product)"
+                            title="Editar {{ product.name }}">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                           class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                        <path
+                          d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178Z"/>
+                      </svg>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" title="Deletar {{ product.name }}"
+                            (click)="onDeleteProduct(product)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                           class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                        <path
+                          d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                      </svg>
+                    </button>
                   </td>
                 </tr>
 
                 <tr class="details-row">
                   @if (expandedProductId === product.id) {
-                    <td [attr.colspan]="7">
-                      <div class="details-container p-3">
-                        <div class="row">
-                          <div class="col-md-6">
-                            <strong>Descrição:</strong>
-                            <p class="text-muted">{{ product.description || 'Nenhuma descrição fornecida.' }}</p>
+                    <td [attr.colspan]="6">
+                      <div class="details-container p-4">
+                        <div class="row g-4">
+                          <div class="col-lg-12">
+                            <h6 class="fw-bold mb-2">Descrição</h6>
+                            <p
+                              class="text-body-secondary mb-0 fst-italic">{{ product.description || 'Nenhuma descrição fornecida.' }}</p>
                           </div>
                           <div class="col-md-6">
-                            <dl class="row">
-                              <dt class="col-sm-6">Preço de Custo:</dt>
-                              <dd class="col-sm-6">{{ (product.price_cost / 100) | currency:'BRL' }}</dd>
-
-                              <dt class="col-sm-6">Nível Mínimo de Estoque:</dt>
-                              <dd class="col-sm-6">{{ product.minimum_stock_level }}</dd>
-
-                              <dt class="col-sm-6">Tipo de Item:</dt>
-                              <dd class="col-sm-6">{{ product.item_type | titlecase }}</dd>
-
-                              <dt class="col-sm-6">Pode ser Vendido?</dt>
-                              <dd class="col-sm-6">{{ product.can_be_sold ? 'Sim' : 'Não' }}</dd>
-                            </dl>
+                            <h6 class="fw-bold mb-2">Detalhes Financeiros</h6>
+                            <table class="table table-sm table-bordered mb-md-0">
+                              <tbody>
+                              <tr>
+                                <th scope="row" class="w-50 p-1">Preço de Venda</th>
+                                <td>{{ (product.price_sale / 100) | currency:'BRL' }}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Preço de Custo</th>
+                                <td>{{ (product.price_cost / 100) | currency:'BRL' }}</td>
+                              </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div class="col-md-6">
+                            <h6 class="fw-bold mb-2">Outros Detalhes</h6>
+                            <table class="table table-sm table-bordered mb-md-0">
+                              <tbody>
+                              <tr>
+                                <th scope="row" class="w-50 p-2">Estoque Mínimo:</th>
+                                <td>{{ product.minimum_stock_level }}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Tipo de Item:</th>
+                                <td>{{ product.item_type | titlecase }}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Pode ser Vendido?</th>
+                                <td>{{ product.can_be_sold ? 'Sim' : 'Não' }}</td>
+                              </tr>
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                       </div>
@@ -87,125 +128,116 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="7" class="text-center p-5">
-                    <h5 class="mb-3">Nenhum produto encontrado</h5>
-                  </td>
+                  <td colspan="6" class="text-center p-5"><h5 class="mb-3">Nenhum produto encontrado</h5>
+                    <p class="text-muted">Clique em "Novo Produto" para cadastrar o primeiro item.</p></td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
       }
-    </div> @if (!isLoading && paginationInfo; as pInfo) {
-    @if(pInfo.total_pages > 1) {
-      <div class="card-footer d-flex justify-content-between align-items-center">
-        <span class="text-muted small">
-          Página {{ pInfo.current_page }} de {{ pInfo.total_pages }} (Total: {{ pInfo.total_items }} itens)
-        </span>
-        <nav aria-label="Navegação de produtos">
-          <ul class="pagination mb-0">
-            <li class="page-item" [class.disabled]="pInfo.current_page === 1">
-              <a class="page-link" href="javascript:void(0)" (click)="loadProducts(pInfo.current_page - 1)">&laquo;</a>
-            </li>
-            @for (_ of [].constructor(pInfo.total_pages); track i; let i = $index) {
-              @if ( i+1 === pInfo.current_page || (i+1 >= pInfo.current_page - 2 && i+1 <= pInfo.current_page + 2) ) {
-                <li class="page-item" [class.active]="i + 1 === pInfo.current_page">
-                  <a class="page-link" href="javascript:void(0)" (click)="loadProducts(i + 1)">{{ i + 1 }}</a>
+    </div>
+
+    @if (!isLoading && paginationInfo; as pInfo) {
+      @if (pInfo.total_pages > 1) {
+        <div class="card-footer d-flex justify-content-between align-items-center">
+          <span class="text-muted small">Página {{ pInfo.current_page }} de {{ pInfo.total_pages }}
+            (Total: {{ pInfo.total_items }} itens)</span>
+          <nav aria-label="Navegação de produtos">
+            <ul class="pagination mb-0 ms-3">
+              <li class="page-item" [class.disabled]="pInfo.current_page === 1"><a class="page-link"
+                                                                                   href="javascript:void(0)"
+                                                                                   (click)="loadProducts(pInfo.current_page - 1)">&laquo;</a>
+              </li>
+              @for (page of displayedPages; track page) {
+                <li class="page-item" [class.active]="page === pInfo.current_page"><a class="page-link"
+                                                                                      href="javascript:void(0)"
+                                                                                      (click)="loadProducts(page)">{{ page }}</a>
                 </li>
               }
-            }
-            <li class="page-item" [class.disabled]="pInfo.current_page === pInfo.total_pages">
-              <a class="page-link" href="javascript:void(0)" (click)="loadProducts(pInfo.current_page + 1)">&raquo;</a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+              <li class="page-item" [class.disabled]="pInfo.current_page === pInfo.total_pages"><a class="page-link"
+                                                                                                   href="javascript:void(0)"
+                                                                                                   (click)="loadProducts(pInfo.current_page + 1)">&raquo;</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
     }
-  }
   </div>
 </div>
 
-<div class="modal fade" #productModalElement id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" #productModalElement id="productModal" tabindex="-1" aria-labelledby="productModalLabel"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <form [formGroup]="productForm" (ngSubmit)="onFormSubmit()">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="productModalLabel">
-            {{ editingProductId ? 'Editar Produto' : 'Criar Novo Produto' }}
-          </h1>
+          <h1 class="modal-title fs-5"
+              id="productModalLabel">{{ editingProductId ? 'Editar Produto' : 'Criar Novo Produto' }}</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div class="row">
-            <div class="col-md-8 mb-3">
-              <label for="name" class="form-label">Nome do Produto</label>
-              <input type="text" class="form-control" id="name" formControlName="name">
+            <div class="col-md-8 mb-3"><label for="name" class="form-label">Nome do Produto</label><input type="text"
+                                                                                                          class="form-control"
+                                                                                                          id="name"
+                                                                                                          formControlName="name">
             </div>
-            <div class="col-md-4 mb-3">
-              <label for="sku" class="form-label">SKU</label>
-              <input type="text" class="form-control" id="sku" formControlName="SKU">
+            <div class="col-md-4 mb-3"><label for="sku" class="form-label">SKU</label><input type="text"
+                                                                                             class="form-control"
+                                                                                             id="sku"
+                                                                                             formControlName="SKU">
             </div>
           </div>
-          <div class="mb-3">
-            <label for="description" class="form-label">Descrição</label>
-            <textarea class="form-control" id="description" formControlName="description" rows="2"></textarea>
-          </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="price_in_cents" class="form-label">Preço de Venda</label>
-              <input type="text" class="form-control" id="price_in_cents" formControlName="price_in_cents"
-                     mask="currency" prefix="R$ " thousands="." decimal=","/>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="price_cost_in_cents" class="form-label">Preço de Custo</label>
-              <input type="text" class="form-control" id="price_cost_in_cents" formControlName="price_cost_in_cents"
-                     mask="currency" prefix="R$ " thousands="." decimal=","/>
-            </div>
+          <div class="mb-3"><label for="description" class="form-label">Descrição</label><textarea class="form-control"
+                                                                                                   id="description"
+                                                                                                   formControlName="description"
+                                                                                                   rows="2"></textarea>
           </div>
           <div class="row">
-            <div class="col-md-4 mb-3">
-              <label for="stock_quantity" class="form-label">Qtd. em Estoque</label>
-              <input type="text" class="form-control" id="stock_quantity" formControlName="stock_quantity"
-                     mask="separator.2" thousandSeparator="." decimalMarker=","/>
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="minimum_stock_level" class="form-label">Nível Mínimo de Estoque</label>
-              <input type="text" class="form-control" id="minimum_stock_level" formControlName="minimum_stock_level"
-                     mask="0*"/>
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="unit_of_measure" class="form-label">Unidade de Medida</label>
-              <input type="text" class="form-control" id="unit_of_measure" formControlName="unit_of_measure">
-            </div>
+            <div class="col-md-6 mb-3"><label for="price_in_cents" class="form-label">Preço de Venda</label><input
+              type="text" class="form-control" id="price_in_cents" formControlName="price_in_cents" mask="currency"
+              prefix="R$ " thousands="." decimal=","/></div>
+            <div class="col-md-6 mb-3"><label for="price_cost_in_cents" class="form-label">Preço de Custo</label><input
+              type="text" class="form-control" id="price_cost_in_cents" formControlName="price_cost_in_cents"
+              mask="currency" prefix="R$ " thousands="." decimal=","/></div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-3"><label for="stock_quantity" class="form-label">Qtd. em Estoque</label><input
+              type="text" class="form-control" id="stock_quantity" formControlName="stock_quantity" mask="separator.2"
+              thousandSeparator="." decimalMarker=","/></div>
+            <div class="col-md-4 mb-3"><label for="minimum_stock_level" class="form-label">Estoque Mínimo</label><input
+              type="text" class="form-control" id="minimum_stock_level" formControlName="minimum_stock_level"
+              mask="0*"/></div>
+            <div class="col-md-4 mb-3"><label for="unit_of_measure" class="form-label">Unidade de Medida</label><input
+              type="text" class="form-control" id="unit_of_measure" formControlName="unit_of_measure"></div>
           </div>
           <div class="row align-items-center">
+            <div class="col-md-4 mb-3"><label for="item_type" class="form-label">Tipo de Item</label><select
+              class="form-select" id="item_type" formControlName="item_type">
+              <option value="MATERIAL">Material</option>
+              <option value="MANUFACTURED">Manufaturado</option>
+            </select></div>
             <div class="col-md-4 mb-3">
-              <label for="item_type" class="form-label">Tipo de Item</label>
-              <select class="form-select" id="item_type" formControlName="item_type">
-                <option value="MATERIAL">Material</option>
-                <option value="MANUFACTURED">Manufaturado</option>
-              </select>
+              <div class="form-check form-switch pt-4"><input class="form-check-input" type="checkbox" role="switch"
+                                                              id="can_be_sold" formControlName="can_be_sold"><label
+                class="form-check-label" for="can_be_sold">Pode ser Vendido?</label></div>
             </div>
             <div class="col-md-4 mb-3">
-              <div class="form-check form-switch pt-4">
-                <input class="form-check-input" type="checkbox" role="switch" id="can_be_sold" formControlName="can_be_sold">
-                <label class="form-check-label" for="can_be_sold">Pode ser Vendido?</label>
-              </div>
-            </div>
-            <div class="col-md-4 mb-3">
-              <div class="form-check form-switch pt-4">
-                <input class="form-check-input" type="checkbox" role="switch" id="active" formControlName="active">
-                <label class="form-check-label" for="active">Produto Ativo?</label>
-              </div>
+              <div class="form-check form-switch pt-4"><input class="form-check-input" type="checkbox" role="switch"
+                                                              id="active" formControlName="active"><label
+                class="form-check-label" for="active">Produto Ativo?</label></div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" [disabled]="isSubmitting">Cancelar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" [disabled]="isSubmitting">Cancelar
+          </button>
           <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isSubmitting">
             @if (isSubmitting) {
-              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-              <span role="status"> Salvando...</span>
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span><span
+                role="status"> Salvando...</span>
             } @else {
               <span>Salvar</span>
             }
@@ -216,12 +248,17 @@
   </div>
 </div>
 
-<div class="modal fade" #conflictModalElement id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
+<div class="modal fade" #conflictModalElement id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="conflictModalLabel">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill text-warning me-2" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+               class="bi bi-exclamation-triangle-fill text-warning me-2" viewBox="0 0 16 16">
+            <path
+              d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+          </svg>
           Conflito de SKU
         </h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -235,7 +272,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="onConfirmReactivateAndEdit()">Sim, Reativar e Editar</button>
+        <button type="button" class="btn btn-primary" (click)="onConfirmReactivateAndEdit()">Sim, Reativar e Editar
+        </button>
       </div>
     </div>
   </div>
