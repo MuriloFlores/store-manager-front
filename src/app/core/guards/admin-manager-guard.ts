@@ -20,7 +20,7 @@ export const adminManagerGuard: CanActivateFn = (route, state) => {
   if (authService.isLoggedIn()) {
     router.navigate(['/dashboard'])
   } else {
-    router.navigate(['/auth/login'])
+    router.navigate(['/products'])
   }
 
   return false;

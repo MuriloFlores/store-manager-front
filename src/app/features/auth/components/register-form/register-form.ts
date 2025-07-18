@@ -1,33 +1,21 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators
-} from '@angular/forms';
-import { CreateUserRequest } from '../../../../core/models/user.model';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {CreateUserRequest} from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-register-form',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './register-form.html',
-  styleUrl: './register-form.css'
-
+  styleUrls: ['./register-form.css']
 })
 
-
-export class RegisterForm implements OnInit {
+export class RegisterFormComponent implements OnInit {
   @Output() formSubmit = new EventEmitter<CreateUserRequest>();
+  @Input() isRegistering = false;
 
   private fb = inject(FormBuilder);
-
   registerForm!: FormGroup;
 
   ngOnInit(): void {
@@ -38,48 +26,28 @@ export class RegisterForm implements OnInit {
       confirmPassword: ['', [Validators.required]],
     }, {
       validators: this.passwordMatchValidator
-    })
-  }
-
-  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const password = control.get('password')?.value;
-    const confirmPassword = control.get('confirmPassword')?.value;
-
-    if (password !== confirmPassword) {
-      return {passwordMismatch: true};
-    }
-
-    return null;
-  }
-
-  get name(): AbstractControl | null {
-    return this.registerForm.get('name');
-  }
-
-  get email(): AbstractControl | null {
-    return this.registerForm.get('email');
-  }
-
-  get password(): AbstractControl | null {
-    return this.registerForm.get('password');
-  }
-
-  get confirmPassword(): AbstractControl | null {
-    return this.registerForm.get('confirmPassword');
+    });
   }
 
   onSubmit(): void {
-    this.registerForm.markAllAsTouched()
-
     if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
       return;
     }
+    this.formSubmit.emit(this.registerForm.value);
+  }
 
-    this.formSubmit.emit(this.registerForm.value)
+  private passwordMatchValidator(c: AbstractControl): ValidationErrors | null {
+    return c.get('password')?.value === c.get('confirmPassword')?.value ? null : { passwordsMismatch: true };
   }
 
   public resetPasswordFields(): void {
-    this.password?.reset();
-    this.confirmPassword?.reset();
+    this.registerForm.get('password')?.reset();
+    this.registerForm.get('confirmPassword')?.reset();
   }
+
+  get name() { return this.registerForm.get('name'); }
+  get email() { return this.registerForm.get('email'); }
+  get password() { return this.registerForm.get('password'); }
+  get confirmPassword() { return this.registerForm.get('confirmPassword'); }
 }

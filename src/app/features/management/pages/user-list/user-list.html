@@ -1,78 +1,114 @@
 <div class="container my-5">
+  <div class="row justify-content-center mb-4">
+    <div class="col-lg-8">
+      <form [formGroup]="searchForm">
+        <div class="input-group input-group-lg shadow-sm">
+          <span class="input-group-text bg-body-tertiary"><i class="bi bi-search"></i></span>
+          <input type="search" class="form-control"
+                 placeholder="Buscar por nome ou e-mail do usuário..."
+                 formControlName="term"
+                 aria-label="Buscar usuários">
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="card shadow-sm">
     <div class="card-header">
       <h3 class="mb-0">Gerenciamento de Usuários</h3>
     </div>
     <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover table-striped mb-0">
-          <thead class="table-dark sticky-top">
-          <tr>
-            <th scope="col">Nome</th>
-            <th scope="col">E-mail</th>
-            <th scope="col" class="text-center">Cargo</th>
-            <th scope="col" class="text-center">Ações</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (user of users; track user.id) {
-              <tr>
-                <td class="align-middle">{{ user.name }}</td>
-                <td class="align-middle">{{ user.email }}</td>
-                <td class="align-middle text-center">
-                  <div class="dropdown" [class.disabled]="isEditingDisabled(user)">
-                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            [disabled]="isEditingDisabled(user)">
+      @if (isLoading) {
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover table-striped mb-0">
+            <thead class="table-dark sticky-top">
+            <tr>
+              <th scope="col">Nome</th>
+              <th scope="col">E-mail</th>
+              <th scope="col" class="text-center">Cargo</th>
+              <th scope="col" class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (user of users; track user.id) {
+                <tr>
+                  <td class="align-middle fw-medium">{{ user.name | shortenName }}</td>
+                  <td class="align-middle text-muted">{{ user.email }}</td>
+                  <td class="align-middle text-center">
+                    <span class="badge rounded-pill"
+                          [ngClass]="{
+                            'text-bg-primary': user.role === 'admin',
+                            'text-bg-info': user.role === 'manager',
+                            'text-bg-secondary': user.role !== 'admin' && user.role !== 'manager'
+                          }">
                       {{ user.role | titlecase }}
-                    </button>
-                    <ul class="dropdown-menu">
-                      @for (role of allRoles; track role) {
-                        <li>
-                          <a class="dropdown-item" href="javascript:void(0)" (click)="onRoleChange(user, role)">
-                            {{ role | titlecase }}
-                          </a>
-                        </li>
-                      }
-                    </ul>
-                  </div>
-                </td>
-                <td class="align-middle text-center">
-                  <button class="btn btn-outline-danger btn-sm"
-                          title="Deletar usuário {{ user.name }}"
-                          (click)="onDeleteUser(user)"
-                          [disabled]="isEditingDisabled(user)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                      <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+                    </span>
+                  </td>
+                  <td class="align-middle text-center">
+                    <div class="btn-group">
+                      <div class="dropdown" [class.disabled]="isEditingDisabled(user)">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                [disabled]="isEditingDisabled(user)">
+                          Alterar Cargo
+                        </button>
+                        <ul class="dropdown-menu">
+                          @for (role of allRoles; track role) {
+                            <li><a class="dropdown-item" href="javascript:void(0)"
+                                   (click)="onRoleChange(user, role)">{{ role | titlecase }}</a></li>
+                          }
+                        </ul>
+                      </div>
+                      <button class="btn btn-sm btn-outline-danger" title="Deletar usuário" (click)="onDeleteUser(user)"
+                              [disabled]="isEditingDisabled(user)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                          <path
+                            d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="text-center p-5">
+                    <h5 class="mb-3">Nenhum usuário encontrado.</h5>
+                    <p class="text-muted">Ajuste os termos da sua busca ou cadastre novos usuários.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
 
-    @if (paginationInfo; as pInfo) {
-      @if(pInfo.total_pages > 1) {
+    @if (!isLoading && paginationInfo; as pInfo) {
+      @if (pInfo.total_pages > 1) {
         <div class="card-footer d-flex justify-content-between align-items-center">
-          <span class="text-muted small">
-            Página {{ pInfo.current_page }} de {{ pInfo.total_pages }} (Total: {{ pInfo.total_items }} usuários)
-          </span>
+          <span class="text-muted small">Página {{ pInfo.current_page }} de {{ pInfo.total_pages }}
+            (Total: {{ pInfo.total_items }} usuários)</span>
           <nav aria-label="Navegação de usuários">
             <ul class="pagination mb-0">
-              <li class="page-item" [class.disabled]="pInfo.current_page === 1">
-                <a class="page-link" href="javascript:void(0)" (click)="loadUsers(pInfo.current_page - 1)">&laquo;</a>
+              <li class="page-item" [class.disabled]="pInfo.current_page === 1"><a class="page-link"
+                                                                                   href="javascript:void(0)"
+                                                                                   (click)="loadPage(pInfo.current_page - 1)">&laquo;</a>
               </li>
-              @for (_ of [].constructor(pInfo.total_pages); track i; let i = $index) {
-                @if ( i+1 === pInfo.total_pages || (i+1 >= pInfo.current_page - 2 && i+1 <= pInfo.current_page + 2) ) {
-                  <li class="page-item" [class.active]="i + 1 === pInfo.current_page">
-                    <a class="page-link" href="javascript:void(0)" (click)="loadUsers(i + 1)">{{ i + 1 }}</a>
-                  </li>
-                }
+              @for (page of displayedPages; track page) {
+                <li class="page-item" [class.active]="page === pInfo.current_page"><a class="page-link"
+                                                                                      href="javascript:void(0)"
+                                                                                      (click)="loadPage(page)">{{ page }}</a>
+                </li>
               }
-              <li class="page-item" [class.disabled]="pInfo.current_page === pInfo.total_pages">
-                <a class="page-link" href="javascript:void(0)" (click)="loadUsers(pInfo.current_page + 1)">&raquo;</a>
+              <li class="page-item" [class.disabled]="pInfo.current_page === pInfo.total_pages"><a class="page-link"
+                                                                                                   href="javascript:void(0)"
+                                                                                                   (click)="loadPage(pInfo.current_page + 1)">&raquo;</a>
               </li>
             </ul>
           </nav>

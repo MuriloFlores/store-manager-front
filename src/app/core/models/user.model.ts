@@ -49,3 +49,7 @@ export interface UpdateUserRequest {
   name?: string;
   role?: string;
 }
+
+export interface ResendVerificationRequest {
+  email: string;
+}

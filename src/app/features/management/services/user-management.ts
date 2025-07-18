@@ -23,7 +23,7 @@ export class UserManagementService {
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
 
-    return this.http.get<PaginatedResponse<UserResponse>>(`${this.API_URL}/users`, { params });
+    return this.http.get<PaginatedResponse<UserResponse>>(`${this.API_URL}/users`, {params});
   }
 
   deleteUser(userID: string): Observable<void> {
@@ -34,5 +34,13 @@ export class UserManagementService {
     const payload = {role: newRole}
 
     return this.http.put<UserResponse>(`${this.API_URL}/user/${userID}`, payload)
+  }
+
+  public searchUsers(term: string, page: number, pageSize: number): Observable<PaginatedResponse<UserResponse>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString())
+
+    return this.http.get<PaginatedResponse<UserResponse>>(`${this.API_URL}/users/search/${term}`, {params})
   }
 }

@@ -28,11 +28,4 @@ export class NavbarComponent {
   onLogout(): void {
     this.authService.logout();
   }
-
-  onSearch(): void {
-    const term = this.searchForm.value.term?.trim();
-    if (term) {
-      this.router.navigate(['/products/search', {queryParams: { q: term } }])
-    }
-  }
 }

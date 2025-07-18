@@ -30,8 +30,15 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/dashboard']);
       },
 
-      error: error => {
-        this.notificationService.show("Login failed", "error");
+      error: (err) => {
+        if (err.message === 'EMAIL_NOT_VERIFIED') {
+          this.notificationService.show('Sua conta precisa ser verificada.', 'info');
+          this.router.navigate(['/auth/resend-verification'], {
+            queryParams: { email: credentials.email }
+          });
+        } else {
+          this.notificationService.show(err.message, 'error');
+        }
       }
     })
   }

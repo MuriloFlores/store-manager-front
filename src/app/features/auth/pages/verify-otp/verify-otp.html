@@ -1,0 +1,42 @@
+<div class="card shadow-lg">
+  <div class="card-header text-center">
+    <h4 class="mb-0">Etapa 2: Verifique sua Conta</h4>
+  </div>
+  <div class="card-body p-4 p-lg-5 text-center">
+
+    @if (email) {
+      <p class="text-body-secondary mb-4">
+        Enviamos um código de 6 dígitos para o e-mail:<br>
+        <strong>{{ email }}</strong>
+      </p>
+      <p class="text-body-secondary mb-4">
+        Por favor, insira-o abaixo para ativar sua conta.
+      </p>
+
+      <form [formGroup]="otpForm" (ngSubmit)="onSubmit()" class="w-75 mx-auto">
+        <div class="mb-3">
+          <label for="otp" class="form-label visually-hidden">Código de 6 dígitos</label>
+          <input type="text" id="otp" class="form-control form-control-lg text-center"
+                 placeholder="------" formControlName="otp" mask="000000"
+                 [ngClass]="{ 'is-invalid': otp?.invalid && otp?.touched }">
+        </div>
+        <div class="d-grid">
+          <button class="btn btn-primary" type="submit" [disabled]="isLoading || otpForm.invalid">
+            @if (isLoading) {
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+              <span role="status" class="ms-2">Verificando...</span>
+            } @else {
+              <span>Verificar Conta</span>
+            }
+          </button>
+        </div>
+      </form>
+    } @else {
+      <p class="text-danger">Não foi possível identificar seu e-mail. Por favor, volte e tente se cadastrar novamente.</p>
+    }
+
+    <div class="mt-4">
+      <a routerLink="/auth/resend-verification" class="link-secondary small">Não recebeu o código?</a>
+    </div>
+  </div>
+</div>

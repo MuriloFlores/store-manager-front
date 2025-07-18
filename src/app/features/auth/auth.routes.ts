@@ -1,7 +1,8 @@
 import {Routes} from '@angular/router';
 import {RegisterComponent} from './pages/register/register';
 import {LoginComponent} from './pages/login/login';
-import {VerifyAccount} from './pages/verify-account/verify-account';
+import {ResendVerification} from './pages/resend-verification/resend-verification';
+import {VerifyOtpComponent} from './pages/verify-otp/verify-otp';
 
 export const AUTH_ROUTES: Routes = [
   {
@@ -15,9 +16,14 @@ export const AUTH_ROUTES: Routes = [
     title: 'Login',
   },
   {
-    path: 'verify-account',
-    component: VerifyAccount,
+    path: 'verify-otp',
+    component: VerifyOtpComponent,
     title: 'Verificação de Conta',
+  },
+  {
+    path: 'resend-verification',
+    component: ResendVerification,
+    title: 'Reenviar Verificação',
   },
   {
     path: '',

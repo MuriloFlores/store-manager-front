@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VerifyAccount } from './verify-account';
+import { VerifyOtp } from './verify-otp';
 
-describe('VerifyAccount', () => {
-  let component: VerifyAccount;
-  let fixture: ComponentFixture<VerifyAccount>;
+describe('VerifyOtp', () => {
+  let component: VerifyOtp;
+  let fixture: ComponentFixture<VerifyOtp>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VerifyAccount]
+      imports: [VerifyOtp]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(VerifyAccount);
+    fixture = TestBed.createComponent(VerifyOtp);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

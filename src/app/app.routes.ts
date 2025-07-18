@@ -1,16 +1,16 @@
 import { Routes } from '@angular/router';
-import {AuthLayout} from './core/layouts/auth-layout/auth-layout';
+import {AuthLayoutComponent} from './core/layouts/auth-layout/auth-layout';
 import {MainLayout} from './core/layouts/main-layout/main-layout';
 import {authGuard} from './core/guards/auth-guard';
 import {adminManagerGuard} from './core/guards/admin-manager-guard';
 import {inventoryStaffGuard} from './core/guards/inventory-staff-guard';
-import {PageNotFound} from './core/components/page-not-found/page-not-found';
 import {smartRedirectGuard} from './core/guards/smart-redirect-guard';
+import {PageNotFound} from './core/components/page-not-found/page-not-found';
 
 export const routes: Routes = [
   {
     path: 'auth',
-    component: AuthLayout,
+    component: AuthLayoutComponent,
     children: [
       { path: '', loadChildren: () => import('./features/auth/auth.routes').then(r => r.AUTH_ROUTES) }
     ]

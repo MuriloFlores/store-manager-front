@@ -2,55 +2,77 @@
 
   <div class="mb-3">
     <label for="name" class="form-label">Nome Completo</label>
-    <input type="text" id="name" class="form-control" formControlName="name" placeholder="Seu nome"
+    <input type="text"
+           id="name"
+           class="form-control"
+           formControlName="name"
+           placeholder="Seu nome e sobrenome"
            [ngClass]="{ 'is-invalid': name?.invalid && name?.touched }">
+
     @if (name?.invalid && name?.touched) {
       <div class="invalid-feedback">
-        @if (name?.errors?.['required']) { <p>O nome é obrigatório.</p> }
-        @if (name?.errors?.['minlength']) { <p>O nome precisa ter no mínimo 3 caracteres.</p> }
+        @if (name?.errors?.['required']) { <p class="mb-0">O nome é obrigatório.</p> }
+        @if (name?.errors?.['minlength']) { <p class="mb-0">O nome precisa ter no mínimo 3 caracteres.</p> }
       </div>
     }
   </div>
 
   <div class="mb-3">
     <label for="email" class="form-label">E-mail</label>
-    <input type="email" id="email" class="form-control" formControlName="email" placeholder="seu@email.com"
+    <input type="email"
+           id="email"
+           class="form-control"
+           formControlName="email"
+           placeholder="seu@email.com"
            [ngClass]="{ 'is-invalid': email?.invalid && email?.touched }">
+
     @if (email?.invalid && email?.touched) {
       <div class="invalid-feedback">
-        @if (email?.errors?.['required']) { <p>O e-mail é obrigatório.</p> }
-        @if (email?.errors?.['email']) { <p>Por favor, insira um formato de e-mail válido.</p> }
+        @if (email?.errors?.['required']) { <p class="mb-0">O e-mail é obrigatório.</p> }
+        @if (email?.errors?.['email']) { <p class="mb-0">Por favor, insira um e-mail válido.</p> }
       </div>
     }
   </div>
 
   <div class="mb-3">
     <label for="password" class="form-label">Senha</label>
-    <input type="password" id="password" class="form-control" formControlName="password" placeholder="Mínimo de 8 caracteres"
+    <input type="password"
+           id="password"
+           class="form-control"
+           formControlName="password"
+           placeholder="Mínimo de 8 caracteres"
            [ngClass]="{ 'is-invalid': password?.invalid && password?.touched }">
+
     @if (password?.invalid && password?.touched) {
       <div class="invalid-feedback">
-        @if (password?.errors?.['required']) { <p>A senha é obrigatória.</p> }
-        @if (password?.errors?.['minlength']) { <p>A senha precisa ter no mínimo 8 caracteres.</p> }
+        @if (password?.errors?.['required']) { <p class="mb-0">A senha é obrigatória.</p> }
+        @if (password?.errors?.['minlength']) { <p class="mb-0">A senha precisa ter no mínimo 8 caracteres.</p> }
       </div>
     }
   </div>
 
   <div class="mb-3">
     <label for="confirmPassword" class="form-label">Confirme a Senha</label>
-    <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
-           [ngClass]="{ 'is-invalid': registerForm.hasError('passwordMismatch') && confirmPassword?.touched }">
-    @if (registerForm.hasError('passwordMismatch') && confirmPassword?.touched) {
-      <div class="invalid-feedback">
-        <p>As senhas não conferem.</p>
+    <input type="password"
+           id="confirmPassword"
+           class="form-control"
+           formControlName="confirmPassword"
+           [ngClass]="{ 'is-invalid': registerForm.hasError('passwordsMismatch') && confirmPassword?.touched }">
+
+    @if (registerForm.hasError('passwordsMismatch') && confirmPassword?.touched) {
+      <div class="invalid-feedback d-block"> <p class="mb-0">As senhas não conferem.</p>
       </div>
     }
   </div>
 
   <div class="d-grid mt-4">
-    <button type="submit" class="btn btn-outline-light" [disabled]="registerForm.invalid">
-      Criar Conta
+    <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || isRegistering">
+      @if (isRegistering) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span role="status" class="ms-2">Criando conta...</span>
+      } @else {
+        <span>Criar Conta e Avançar</span>
+      }
     </button>
   </div>
-
 </form>
